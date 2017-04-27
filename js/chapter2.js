@@ -292,7 +292,7 @@ function canvasApp() {
     }
 
     // radialGradient
-    function drawScreen() {
+    function radialGradient() {
 
         var gr = context.createRadialGradient(50, 50, 0, 50, 50, 100);
 
@@ -306,6 +306,103 @@ function canvasApp() {
         context.arc(100, 100, 100, (Math.PI / 180) * 0, (Math.PI / 180) * 360, false);
         context.fill();
     }
+
+    // fillPatterns
+    function fillPatterns() {
+
+        var fillImg = new Image();
+        fillImg.src = 'img/flower_small.jpg';
+        fillImg.onload = function() {
+
+            var fillPattern1 = context.createPattern(fillImg, 'no-repeat');
+            var fillPattern2 = context.createPattern(fillImg, 'repeat-x');
+            var fillPattern3 = context.createPattern(fillImg, 'repeat-y');
+
+            context.fillStyle = fillPattern1;
+            context.fillRect(0, 0, 100, 100);
+
+            context.translate(0, 110);
+            context.fillStyle = fillPattern2;
+            context.fillRect(0, 0, 100, 100);
+            context.translate(0, -110);
+
+            context.translate(0, 220);
+            context.fillStyle = fillPattern3;
+            context.fillRect(0, 0, 100, 100);
+            context.translate(0, -220);
+        }
+    }
+
+    // shadow
+    function shadow() {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.fillStyle = 'red';
+
+        context.shadowOffsetX = 4;
+        context.shadowOffsetY = 4;
+        context.shadowColor = 'black';
+        context.shadowBlur = 4;
+        context.fillRect(10, 10, 100, 100);
+
+        context.setTransform(1, 0, 0, 1, 0, 0);
+
+        context.translate(200, 55);
+        var angleInRadians = 45 * Math.PI / 180;
+        context.rotate(angleInRadians);
+        context.translate(-200, -55);
+
+        context.shadowOffsetX = -4;
+        context.shadowOffsetY = -4;
+        context.shadowColor = 'black';
+        context.shadowBlur = 4;
+        context.fillRect(150, 10, 100, 100);
+        context.setTransform(1, 0, 0, 1, 0, 0);
+
+        context.shadowOffsetX = 10;
+        context.shadowOffsetY = 10;
+        context.shadowColor = 'rgb(100,100,100)';
+        context.shadowBlur = 8;
+        context.arc(200, 300, 100, (Math.PI / 180) * 0, (Math.PI / 180) * 360, false)
+        context.fill();
+
+        // clear rect
+        // var w = theCanvas.width;
+        // var h = theCanvas.height;
+        // context.clearRect(0, 0, w / 4, h);
+    }
+
+    var yOffset = 0;
+
+    // game
+    function drawScreen() {
+
+        context.clearRect(0, 0, theCanvas.width, theCanvas.height);
+
+        var isPointInPath = context.isPointInPath(49, 300);
+
+        context.beginPath();
+        if (isPointInPath) {
+            context.strokeStyle = "blue"; //need list of available colors
+        } else {
+            context.strokeStyle = "red"; //need list of available colors
+        }
+        context.lineWidth = 5;
+        context.moveTo(0, 0 + yOffset);
+        context.lineTo(150, 0 + yOffset);
+        context.lineTo(50, 50 + yOffset);
+        context.closePath();
+        context.stroke();
+        yOffset += 1;
+
+    }
+
+    function gameLoop() {
+        window.setTimeout(gameLoop, 20);
+        drawScreen()
+    }
+
+    gameLoop();
+
 }
 
 
