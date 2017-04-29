@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>HTML Canvas Chapter 3</title>
+        <script type="text/javascript" src="js/modernizr.js"></script>
+        <script type="text/javascript" src="js/jscolor.min.js"></script>
+        <script type="text/javascript" src="js/chapter3.js"></script>
+    </head>
+
+    <body>
+        <div style="position: absolute; top: 50px; left: 50px;">
+            <div style="width: 600px; height:600px">
+                <canvas id="canvas" width="1200" height="1200" style="width: 600px; height:600px">
+                    Your browser does not support HTML5 Canvas.
+                </canvas>
+            </div>
+            <form>
+                Text:
+                <input id="textBox" placeholder="your text"/>
+                <br>
+            </form>
+            <select id="fillOrStroke">
+                <option value="fill">fill</option>
+                <option value="stroke">stroke</option>
+                <option value="both">both</option>
+            </select>
+            <select id="fontStyle">
+                <option value="normal">normal</option>
+                <option value="italic">italic</option>
+                <option value="oblique">oblique</option>
+            </select>
+            <select id="fontWeight">
+                <option value="normal">normal</option>
+                <option value="bold">bold</option>
+                <option value="bolder">bolder</option>
+                <option value="lighter">lighter</option>
+            </select>
+            <select id="textFont">
+                <option value="serif">serif</option>
+                <option value="sans-serif">sans-serif</option>
+                <option value="cursive">cursive</option>
+                <option value="fantasy">fantasy</option>
+                <option value="monospace">monospace</option>
+                <option value="garamond">garamond</option>
+            </select>
+            <input type="range" id="textSize" min="0" max="200" step="1" value="50"/>
+            <select id="fillType">
+                <option value="colorFill">colorFill</option>
+                <option value="linearGradient">linear gradient</option>
+                <option value="radialGradient" selected>radial gradient</option>
+                <option value="animatedGradient">animated gradient</option>
+                <option value="pattern">pattern</option>
+            </select>
+            <input class="jscolor" id="textFillColor" value="FFF800"/>
+            <input class="jscolor" id="textFillColor2" value="E872B0"/>
+            <select id="textBaseline">
+                <option value="middle">middle</option>
+                <option value="top">top</option>
+                <option value="hanging">hanging</option>
+                <option value="alphabetic">alphabetic</option>
+                <option value="ideographic">ideographic</option>
+                <option value="bottom">bottom</option>
+            </select>
+            <select id="textAlign">
+                <option value="center">center</option>
+                <option value="start">start</option>
+                <option value="end">end</option>
+                <option value="left">left</option>
+                <option value="right">right</option>
+            </select>
+            <input type="range" id="textAlpha" min="0.0" max="1.0" step="0.01" value="1.0"/>
+            <input type="range" id="shadowX" min="−100" max="100" step="1" value="1"/>
+            <input type="range" id="shadowY" min="−100" max="100" step="1" value="1"/>
+            <input type="range" id="shadowBlur" min="1" max="100" step="1" value="1"/>
+            <input class="jscolor" id="shadowColor" value="707070"/>
+            <input type="range" id="canvasWidth" min="0" max="1200" step="1" value="1200"/>
+            <input type="range" id="canvasHeight" min="0" max="1200" step="1" value="1200"/>
+            <input type="button" id="createImageData" value="Create Image Data">
+            <br>
+            <textarea id="imageDataDisplay" rows=10 cols=30></textarea>
+        </div>
+    </body>
+
+</html>
