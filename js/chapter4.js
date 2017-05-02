@@ -2,9 +2,26 @@ window.addEventListener('load', eventWindowLoaded, false);
 
 var tileSheet = new Image();
 var photo = new Image();
+var plus = new Image();
+var cross = new Image();
 
-var expectedImgCnt = 2;
+var expectedImgCnt = 4;
 var loadedImgCnt = 0;
+
+var blueObject = {};
+var redObject = {};
+
+blueObject.x = 0;
+blueObject.y = 200;
+blueObject.dx = 2;
+blueObject.width = 48;
+blueObject.height = 48;
+
+redObject.x = 88;
+redObject.y = 200;
+redObject.dx = -2;
+redObject.width = 48;
+redObject.height = 48;
 
 
 function eventWindowLoaded() {
@@ -14,6 +31,12 @@ function eventWindowLoaded() {
 
     photo.src = "img/butterfly.jpg";
     photo.onload = eventAssetsLoaded;
+
+    plus.src = "img/plus.png";
+    plus.onload = eventAssetsLoaded;
+
+    cross.src = "img/cross.png";
+    cross.onload = eventAssetsLoaded;
 }
 
 function eventAssetsLoaded() {
@@ -44,6 +67,12 @@ function canvasApp() {
 
     var w = theCanvas.width / 2;
     var h = theCanvas.height / 2;
+
+    blueObject.image = plus;
+    blueObject.blueImageData = context.getImageData(0, 0, blueObject.width, blueObject.height);
+
+    redObject.image = cross;
+    redObject.redImageData = context.getImageData(0, 0, redObject.width, redObject.height);
 
     var counter = 0;
     var animationFrames = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -175,11 +204,6 @@ function canvasApp() {
         }
     }
 
-    function gameLoop() {
-        window.setTimeout(gameLoop, 1000);
-        drawScreen();
-    }
-
     var mouseX;
     var mouseY;
     var imageData = context.createImageData(scaledTileWidth, scaledTileWidth);
@@ -231,12 +255,82 @@ function canvasApp() {
         context2.drawImage(theCanvas, scaledTileWidth, 0, scaledTileWidth, scaledTileWidth, 0, 0, 32, 32);
     }
 
-
-    function a() {
+    // tileApplicator
+    function tileApplicator() {
         drawTileSheet();
     }
 
-    //gameLoop();
+    // collision
+    function a() {
+        blueObject.x += blueObject.dx;
+        redObject.x += redObject.dx;
+
+        // context.drawImage(blueObject.image, 0, 0);
+        // blueObject.blueImageData = context.getImageData(0, 0, blueObject.width,
+        //     blueObject.height);
+        // context.clearRect(0, 0, theCanvas.width, theCanvas.height);
+        // redObject.x = 348;
+        //
+        // context.drawImage(redObject.image, 0, 0);
+        // redObject.redImageData = context.getImageData(0, 0, redObject.width,
+        //     redObject.height);
+        // context.clearRect(0, 0, theCanvas.width, theCanvas.height);
+
+        context.clearRect(0, 0, theCanvas.width, theCanvas.height);
+        context.drawImage(blueObject.image, blueObject.x, blueObject.y);
+        context.drawImage(redObject.image, redObject.x, redObject.y);
+
+        //console.log("redObject.redImageData.data[3]=" + redObject.redImageData.data[3]);
+
+        if (boundingBoxCollide(blueObject, redObject)) {
+
+            var xMin = Math.max(blueObject.x, redObject.x);
+            var yMin = Math.max(blueObject.y, redObject.y);
+            var xMax = Math.min(blueObject.x + blueObject.width, redObject.x + redObject.width);
+            var yMax = Math.min(blueObject.y + blueObject.height, redObject.y + redObject.height);
+
+            for (var pixelX = xMin; pixelX < xMax; pixelX++) {
+                for (var pixelY = yMin; pixelY < yMax; pixelY++) {
+                    var bluepixel = ((pixelX - blueObject.x) + (pixelY - blueObject.y) * blueObject.width) * 4 + 3;
+                    var redpixel = ((pixelX - redObject.x) + (pixelY - redObject.y) * redObject.width) * 4 + 3;
+                    console.log(redObject.redImageData.data[redpixel]);
+                    if ((blueObject.blueImageData.data[bluepixel] !== 0) &&
+                        (redObject.redImageData.data[redpixel] !== 0)) {
+                        console.log("pixel collision")
+                        blueObject.dx = 0;
+                        redObject.dx = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    function boundingBoxCollide(object1, object2) {
+        var left1 = object1.x;
+        var left2 = object2.x;
+        var right1 = object1.x + object1.width;
+        var right2 = object2.x + object2.width;
+        var top1 = object1.y;
+        var top2 = object2.y;
+        var bottom1 = object1.y + object1.height;
+        var bottom2 = object2.y + object2.height;
+
+        if (bottom1 < top2) return false;
+        if (top1 > bottom2) return false;
+
+        if (right1 < left2) return false;
+        if (left1 > right2) return false;
+
+        return true;
+    };
+
+    function gameLoop() {
+        window.setTimeout(gameLoop, 1000);
+        drawScreen();
+    }
+
+    gameLoop();
 }
 
 // font order:
