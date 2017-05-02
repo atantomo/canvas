@@ -5,23 +5,28 @@ var photo = new Image();
 var plus = new Image();
 var cross = new Image();
 
-var expectedImgCnt = 4;
+var expectedImgCnt = 2;
 var loadedImgCnt = 0;
 
 var blueObject = {};
 var redObject = {};
+var gameOver = false;
 
 blueObject.x = 0;
 blueObject.y = 200;
 blueObject.dx = 2;
 blueObject.width = 48;
 blueObject.height = 48;
+blueObject.image = new Image();
+blueObject.image.src = "img/plus.png";
 
 redObject.x = 88;
 redObject.y = 200;
 redObject.dx = -2;
 redObject.width = 48;
 redObject.height = 48;
+redObject.image = new Image();
+redObject.image.src = "img/cross.png";
 
 
 function eventWindowLoaded() {
@@ -31,12 +36,6 @@ function eventWindowLoaded() {
 
     photo.src = "img/butterfly.jpg";
     photo.onload = eventAssetsLoaded;
-
-    plus.src = "img/plus.png";
-    plus.onload = eventAssetsLoaded;
-
-    cross.src = "img/cross.png";
-    cross.onload = eventAssetsLoaded;
 }
 
 function eventAssetsLoaded() {
@@ -68,11 +67,13 @@ function canvasApp() {
     var w = theCanvas.width / 2;
     var h = theCanvas.height / 2;
 
-    blueObject.image = plus;
+    context.drawImage(blueObject.image, 0, 0);
     blueObject.blueImageData = context.getImageData(0, 0, blueObject.width, blueObject.height);
+    context.clearRect(0, 0, w, h);
 
-    redObject.image = cross;
+    context.drawImage(redObject.image, 0, 0);
     redObject.redImageData = context.getImageData(0, 0, redObject.width, redObject.height);
+    context.clearRect(0, 0, w, h);
 
     var counter = 0;
     var animationFrames = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -265,17 +266,6 @@ function canvasApp() {
         blueObject.x += blueObject.dx;
         redObject.x += redObject.dx;
 
-        // context.drawImage(blueObject.image, 0, 0);
-        // blueObject.blueImageData = context.getImageData(0, 0, blueObject.width,
-        //     blueObject.height);
-        // context.clearRect(0, 0, theCanvas.width, theCanvas.height);
-        // redObject.x = 348;
-        //
-        // context.drawImage(redObject.image, 0, 0);
-        // redObject.redImageData = context.getImageData(0, 0, redObject.width,
-        //     redObject.height);
-        // context.clearRect(0, 0, theCanvas.width, theCanvas.height);
-
         context.clearRect(0, 0, theCanvas.width, theCanvas.height);
         context.drawImage(blueObject.image, blueObject.x, blueObject.y);
         context.drawImage(redObject.image, redObject.x, redObject.y);
@@ -293,12 +283,12 @@ function canvasApp() {
                 for (var pixelY = yMin; pixelY < yMax; pixelY++) {
                     var bluepixel = ((pixelX - blueObject.x) + (pixelY - blueObject.y) * blueObject.width) * 4 + 3;
                     var redpixel = ((pixelX - redObject.x) + (pixelY - redObject.y) * redObject.width) * 4 + 3;
-                    console.log(redObject.redImageData.data[redpixel]);
                     if ((blueObject.blueImageData.data[bluepixel] !== 0) &&
                         (redObject.redImageData.data[redpixel] !== 0)) {
                         console.log("pixel collision")
                         blueObject.dx = 0;
                         redObject.dx = 0;
+                        gameOver = true;
                         break;
                     }
                 }
@@ -326,8 +316,10 @@ function canvasApp() {
     };
 
     function gameLoop() {
-        window.setTimeout(gameLoop, 1000);
-        drawScreen();
+        if (!gameOver) {
+            window.setTimeout(gameLoop, 100);
+            drawScreen();
+        }
     }
 
     gameLoop();
