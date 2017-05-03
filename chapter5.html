@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>HTML Canvas Chapter 5</title>
+        <script type="text/javascript" src="js/modernizr.js"></script>
+        <script type="text/javascript" src="js/chapter5.js"></script>
+    </head>
+
+    <body>
+        <div style="position: absolute; top: 50px; left: 50px;">
+            <div>
+                <canvas id="canvas" width="1000" height="1000" style="width: 500px; height:500px">
+                    Your browser does not support HTML5 Canvas.
+                </canvas>
+            </div>
+            <div>
+                <form>
+
+                    Canvas Width:
+                    <input type="range" id="canvasWidth" min="0" max="1000" step="1" value="500"/>
+                    <br>
+                    Canvas Height:
+                    <input type="range" id="canvasHeight" min="0" max="1000" step="1" value="500"/>
+                    <br>
+
+                </form>
+            </div>
+        </div>
+    </body>
+
+</html>
