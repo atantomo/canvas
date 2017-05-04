@@ -57,6 +57,9 @@ function canvasApp() {
     var pointImage = new Image();
     pointImage.src = "img/point.png";
 
+    var bullseye = new Image();
+    bullseye.src = "img/cross.png";
+
     var ball = {
         x: p1.x,
         y: p1.y
@@ -103,7 +106,7 @@ function canvasApp() {
     //     balls.push(tempBall);
     // }
 
-    var numBalls = 200;
+    var numBalls = 100;
     var maxSize = 15;
     var minSize = 5;
     var maxSpeed = maxSize + 5;
@@ -117,9 +120,10 @@ function canvasApp() {
     var tempRadians;
     var tempvelocityx;
     var tempvelocityy;
+    var friction = 0; //.01;
 
     for (var i = 0; i < numBalls; i++) {
-        tempRadius = 5;
+        tempRadius = 5; // Math.floor(Math.random() * maxSize) + minSize;
         var placeOK = false;
         while (!placeOK) {
             tempX = tempRadius * 3 + (Math.floor(Math.random() * theCanvas.width / 2) - tempRadius * 3);
@@ -162,6 +166,126 @@ function canvasApp() {
 
     formElement = document.getElementById("canvasHeight")
     formElement.addEventListener('change', canvasHeightChanged, false);
+
+    var radiusInc = 2;
+    var circle = {
+        centerX: 250,
+        centerY: 250,
+        radius: 50,
+        angle: 0
+    }
+    var circleBall = {
+        x: 0,
+        y: 0,
+        speed: .01,
+        t: 0
+    };
+
+    ball.y += ball.velocityy;
+    ball.x += ball.velocityx;
+
+    context.fillStyle = "#000000";
+    context.beginPath();
+    context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+    // zigzag
+    // var p0 = {
+    //     x: 250,
+    //     y: 10
+    // };
+    // var p1 = {
+    //     x: 450,
+    //     y: 200
+    // };
+    // var p2 = {
+    //     x: 100,
+    //     y: 295
+    // };
+    // var p3 = {
+    //     x: 350,
+    //     y: 350
+    // };
+
+    // loop
+    var p0 = {
+        x: 150,
+        y: 440
+    };
+    var p1 = {
+        x: 450,
+        y: 10
+    };
+    var p2 = {
+        x: 50,
+        y: 10
+    };
+    var p3 = {
+        x: 325,
+        y: 450
+    };
+
+    function Gravity() {
+        this.speed = 4;
+        this.gravity = .1;
+        this.elasticity = .5;
+        this.angle = 295;
+        this.friction = .008;
+
+        this.radians = this.angle * Math.PI / 180;
+        this.radius = 15;
+        this.vx = Math.cos(this.radians) * this.speed;
+        this.vy = Math.sin(this.radians) * this.speed;
+
+        this.p1 = {
+            x: 20,
+            y: theCanvas.height / 2 - this.radius
+        };
+        this.ball = {
+            x: this.p1.x,
+            y: this.p1.y,
+            velocityx: this.vx,
+            velocityy: this.vy,
+            radius: this.radius,
+            elasticity: this.elasticity
+        };
+    }
+
+    function Easing() {
+        this.easeValue = .05;
+        this.tempSpeed = .5;
+        this.tempAngle = 270;
+        this.tempRadians = this.tempAngle * Math.PI / 180;
+
+        this.tempvelocityx = Math.cos(this.tempRadians) * this.tempSpeed;
+        this.tempvelocityy = Math.sin(this.tempRadians) * this.tempSpeed;
+
+        this.p1 = {
+            x: 240,
+            y: -20
+        };
+        this.p2 = {
+            x: 240,
+            y: 470
+        };
+        this.ship = {
+            x: this.p1.x,
+            y: this.p1.y,
+            endx: this.p2.x,
+            endy: this.p2.y,
+            velocityx: 0,
+            velocityy: 0
+        };
+        this.easeInShip = {
+            x: this.p2.x,
+            y: this.p2.y,
+            velocityx: this.tempvelocityx,
+            velocityy: this.tempvelocityy,
+        };
+    }
+
+    var g = new Gravity();
+    var e = new Easing();
 
     function drawScreen() {
 
@@ -249,11 +373,157 @@ function canvasApp() {
         }
 
         // movingMultipleBallsWithCollision
-        function a() {
+        function movingMultipleBallsWithCollision() {
             update();
             testWalls();
             collide();
             render();
+        }
+
+        // circularMotion
+        function circularMotion() {
+            ball = circleBall;
+            // circle.radius += radiusInc;
+            ball.x = circle.centerX + Math.cos(circle.angle) * circle.radius;
+            ball.y = circle.centerY + Math.sin(circle.angle) * circle.radius;
+
+            circle.angle += ball.speed;
+
+            context.fillStyle = "#E872B0";
+            context.beginPath();
+            context.arc(ball.x, ball.y, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+        }
+
+        // bezierMotion
+        function bezierMotion() {
+            ball = circleBall;
+            var t = ball.t;
+
+            var cx = 3 * (p1.x - p0.x)
+            var bx = 3 * (p2.x - p1.x) - cx;
+            var ax = p3.x - p0.x - cx - bx;
+
+            var cy = 3 * (p1.y - p0.y);
+            var by = 3 * (p2.y - p1.y) - cy;
+            var ay = p3.y - p0.y - cy - by;
+
+            var xt = ax * (t * t * t) + bx * (t * t) + cx * t + p0.x;
+            var yt = ay * (t * t * t) + by * (t * t) + cy * t + p0.y;
+
+            ball.t += ball.speed;
+
+            if (ball.t > 1) {
+                ball.t = 1;
+            }
+
+            pinkBall();
+            crossImage();
+
+            function pinkBall() {
+                context.fillStyle = "#E872B0";
+                context.beginPath();
+                context.arc(xt, yt, 15, 0, Math.PI * 2, true);
+                context.closePath();
+                context.fill();
+            }
+
+            function crossImage() {
+                context.fillStyle = "#E872B0";
+                context.beginPath();
+                context.drawImage(bullseye, xt - bullseye.width / 2, yt - bullseye.height / 2);
+                context.closePath();
+                context.fill();
+            }
+        }
+
+        // gravitySimulator
+        function gravitySimulator() {
+            ball = g.ball;
+
+            ball.velocityx -= (ball.velocityx * g.friction);
+            ball.velocityy += g.gravity;
+            if ((ball.y + ball.radius) > h) {
+                ball.velocityy = -(ball.velocityy) * ball.elasticity;
+            }
+            ball.y += ball.velocityy;
+            ball.x += ball.velocityx;
+
+            context.fillStyle = "#E872B0";
+            context.beginPath();
+            context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+        }
+
+        // easingSimulator
+        function a() {
+            ship = e.ship;
+
+            var dx = ship.endx - ship.x;
+            var dy = ship.endy - ship.y;
+
+            ship.velocityx = dx * e.easeValue;
+            ship.velocityy = dy * e.easeValue;
+
+            ship.x += ship.velocityx;
+            ship.y += ship.velocityy;
+
+            context.fillStyle = "#E872B0";
+            context.beginPath();
+            context.arc(ship.x, ship.y, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+
+            ship = e.easeInShip;
+
+            ship.velocityx = ship.velocityx + (ship.velocityx * e.easeValue);
+            ship.velocityy = ship.velocityy + (ship.velocityy * e.easeValue);
+
+            ship.x += ship.velocityx;
+            ship.y += ship.velocityy;
+
+            context.fillStyle = "#11B764";
+            context.beginPath();
+            context.arc(ship.x, ship.y, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+        }
+
+        function drawBezierAnnotation() {
+            context.font = "10px sans";
+            context.fillStyle = "#FF0000";
+            context.beginPath();
+            context.arc(p0.x, p0.y, 8, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+            context.fillStyle = "#FFFFFF";
+            context.fillText("0", p0.x - 2, p0.y + 2);
+
+            context.fillStyle = "#FF0000";
+            context.beginPath();
+            context.arc(p1.x, p1.y, 8, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+            context.fillStyle = "#FFFFFF";
+            context.fillText("1", p1.x - 2, p1.y + 2);
+
+            context.fillStyle = "#FF0000";
+            context.beginPath();
+            context.arc(p2.x, p2.y, 8, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+            context.fillStyle = "#FFFFFF";
+            context.fillText("2", p2.x - 2, p2.y + 2);
+
+            context.fillStyle = "#FF0000";
+            context.beginPath();
+            context.arc(p3.x, p3.y, 8, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+            context.fillStyle = "#FFFFFF";
+            context.fillText("3", p3.x - 2, p3.y + 2);
         }
 
         function drawPoints() {
@@ -283,6 +553,10 @@ function canvasApp() {
     function update() {
         for (var i = 0; i < balls.length; i++) {
             ball = balls[i];
+            //Friction
+            ball.velocityx = ball.velocityx - (ball.velocityx * friction);
+            ball.velocityy = ball.velocityy - (ball.velocityy * friction);
+
             ball.nextx = (ball.x += ball.velocityx);
             ball.nexty = (ball.y += ball.velocityy);
         }
